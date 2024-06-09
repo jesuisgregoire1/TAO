@@ -77,8 +77,8 @@ disp('Norma diferenței între soluțiile obținute cu metoda Schur și `care()`
 %disp(norm(X - X_schur));
 
 % Numărul de condiționare al lui U
-%disp('Numărul de condiționare al lui U');
-%disp(cond(U(1:n, 1:n))); % < 10 => Bine condiționată
+disp('Numărul de condiționare al lui U (metoda Schur):');
+disp(cond(U(1:n, 1:n))); % < 10 => Bine condiționată
 
 % Verificarea stabilității sistemului în buclă închisă
 disp('Valorile proprii ale sistemului în buclă închisă < 0 => STABIL');
@@ -93,6 +93,7 @@ title('Răspunsul Inițial al Sistemului în Buclă Închisă');
 xlabel('Timp');
 ylabel('Acceleratia unghiulara');
 grid on;
+
 % Subgraficul pentru a doua coloană a ieșirii
 subplot(3, 1, 2);
 plot(t, yn(:, 2), 'LineWidth', 2);
@@ -100,6 +101,7 @@ plot(t, yn(:, 2), 'LineWidth', 2);
 xlabel('Timp');
 ylabel('Viteza unghiulara');
 grid on;
+
 % Subgraficul pentru a treia coloană a ieșirii
 subplot(3, 1, 3);
 plot(t, yn(:, 3), 'LineWidth', 2);
@@ -112,11 +114,12 @@ grid on;
 %% Metoda Vectorilor Schur in caz de avarie
 
 Ra_avarie = Ra * 10;  % Dublarea rezistenței
+
 % Recalculare parametrii
 num_avarie = (n1/n2) * K;
 %den_avarie = [Ra_avarie*(J1 + (n1/n2)^2 * J2), K*Kb, 0];
-%den_avarie = [100, -1.5, 0]; 
-den_avarie = [-100, -1.5,0];
+den_avarie = [100, -1.5]; fictiv
+%den_avarie = [10000, -1.5,0];
 
 % Creare sistem în spațiul stărilor pentru cazul avariat
 [Af, Bf, Cf, Df] = tf2ss(num_avarie, den_avarie);
@@ -128,10 +131,14 @@ Hf = [Af -Bf/R*Bf' ;
      -Q   -Af'   ];
  
 [U, S] = schur(Hf);
-[U, S] = ordschur(U, S, 'lhp'); 
-                                
-X_schurf = U(n+1:2*n, 1:n) / U(1:n, 1:n); 
-K_schurf = R \ Bf' * X_schurf;            
+[U, S] = ordschur(U, S, 'lhp'); %se ordoneaza matricile U si S a.i. val pr stabile
+                                %ale lui A sa fie asezate in partea stanga
+X_schurf = U(n+1:2*n, 1:n) / U(1:n, 1:n); %solutia
+K_schurf = R \ Bf' * X_schurf;             %reactia
+
+disp('Norma diferentei dintre sol obtinuta cu MVS si sol obtinuta cu care():');
+%disp(norm(X - X_schur));
+% cele doua solutii sunt foarte apropiate (diferenta e de ordinul e-15)
 
 disp('MVS - nr de conditionare:');
 disp(cond(U(1:n, 1:n))); % < 10 => Bine conditionata
